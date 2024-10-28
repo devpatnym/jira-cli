@@ -76,7 +76,8 @@ jira.init().then(function(){
     .option("-u, --user <username>", "Set the user name")
     .option("-a, --assign <username>", "Assign issue to a user")
     .option("-t, --transition [transitionName]", "Make issue transition")
-		.option("-c, --comment <comment>", "Add comment to issue")
+    .option("-c, --comment <comment>", "Add comment to issue")
+    .option("-S, --select", "Select an issue")
     .option("-h, --help", "")
     .action((c, o) => {
       jira.cmdIssue(c, o);

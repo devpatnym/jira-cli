@@ -266,6 +266,23 @@ class JiraCLI {
         // Show project issues
         this.issues.getProjectIssues( options.project );
 
+      } else if ( options.select ) {
+
+        const _this = this;
+        this.issues.selectIssue().then((issue) => {
+          console.log(issue);
+          var spawnSync = require('child_process').spawnSync;
+          return spawnSync(
+            '/usr/bin/xclip',
+            ['-selection', 'clipboard'],
+            {
+              timeout: 100,
+              shell: '/usr/bin/bash',
+              input: issue,
+            }
+          );
+        });
+
       } else {
 
         // Show user open issues if no arguments/options are passed
