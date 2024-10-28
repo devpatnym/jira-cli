@@ -266,6 +266,10 @@ class JiraCLI {
         // Show project issues
         this.issues.getProjectIssues( options.project );
 
+      } else if ( options.select ) {
+
+        this.issues.selectIssue();
+
       } else {
 
         // Show user open issues if no arguments/options are passed

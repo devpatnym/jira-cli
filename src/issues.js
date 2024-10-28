@@ -8,6 +8,25 @@ import opn from 'opn';
 // Local
 import jira from './jira';
 
+const STATUS_ASC_ORDER = [
+  'Selected for Development',
+  'In Progress',
+  'Code Review',
+  'Merged',
+  'Accepted',
+  'Done',
+  'Backlog',
+  'MISC',
+];
+
+function sortIssuesByMyPreferences(issues) {
+  return issues.sort((a,b) => {
+    const aIdx = STATUS_ASC_ORDER.indexOf(a.fields.status.name);
+    const bIdx = STATUS_ASC_ORDER.indexOf(b.fields.status.name);
+    return aIdx - bIdx;
+  });
+}
+
 export default class JiraIssues {
 
   /**
@@ -224,13 +243,36 @@ export default class JiraIssues {
       head: ['Key', 'Status', 'Summary']
     });
 
-    issues.forEach(function( issue ){
+    const issues2 = sortIssuesByMyPreferences(issues);
+
+    issues2.forEach(function( issue ){
       table.push(
         [color.blue( issue.key ), color.green( issue.fields.status.name ), issue.fields.summary ]
       );
     });
 
     console.log( table.toString() );
+  }
+
+  selectIssue() {
+    const jql = 'assignee = currentUser() and resolution = Unresolved';
+    const execThis = this;
+    jira.api.searchJira( jql ).then(function( r ){
+      const choices = r.issues.map((issue) => [color.blue( issue.key ), color.green( issue.fields.status.name ), issue.fields.summary].join(" "));
+      const question = [
+        {
+         type: 'list',
+         name: 'fields.status.name',
+         message: 'Issues: ',
+         choices,
+        }
+      ];
+      inquirer.prompt(question).then((res) => {
+        // TODO: do something with the output maybe
+      });
+    }).catch(function( r ){
+      jira.showErrors( r );
+    });
   }
 
   /**
@@ -494,7 +536,6 @@ export default class JiraIssues {
 
       return this.transitionIssue( issueId, transitionObj );
     }
-  }
 
   /**
   * Add comment to issue
